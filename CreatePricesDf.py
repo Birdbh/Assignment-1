@@ -13,7 +13,7 @@ def CreatePricesDf():
     df_prices['HourDK'] = df_prices['HourUTC'].dt.tz_convert('CET')
     
     # Convert prices and filter
-    df_prices['SpotPriceDKK'] = df_prices['SpotPriceDKK']/1000
+    #df_prices['SpotPriceDKK'] = df_prices['SpotPriceDKK']/1000
 
     #Include DK1 & DK2 Areas in Dataframe
     df_prices = df_prices.loc[(df_prices['PriceArea']=='DK1') | (df_prices['PriceArea']=='DK2')]
