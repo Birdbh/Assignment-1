@@ -19,12 +19,15 @@ df_hourly = df_net.resample('H', on='HourUTC').mean(numeric_only=True)
 df_hourly = df_hourly.reset_index()[["HourUTC","PV","Load"]]
 df_hourly["HourDK"] = df_hourly['HourUTC'].dt.tz_convert('CET')
 
+#change sampling for only full days
+
 #Sampling spot prices in days from hours
 df_pricesDK2days=df_pricesDK2.resample('d', on='HourDK').mean(numeric_only=True)
 df_pricesDK2days=df_pricesDK2days.reset_index()[["HourDK","SpotPriceDKK"]]
 
 #Reshaping values in to a array
 df_SpotPricehours=df_pricesDK2["SpotPriceDKK"].values[0:27768]
+
 #Rehsaping in 24 values per row
 df_SpotPricehours=df_SpotPricehours.reshape(-1,24)
 
@@ -43,6 +46,7 @@ C_n = 5
 i=0
 for i in range(len(df_pricesDK2days["SpotPriceDKK"])):
     p=df_SpotPricehours[i]
+    #this value is off because it takes the last two hours of one day when the data starts into account, need to exldude 2019-8-31 22:00 and 23:00 at the beginning, small change but more accurate
 
     #Calling Optimizerpy
     profitOpt, p_cOpt, p_dOpt, XOpt = Optimizer(Pmax, n_c, n_d, Cmax, C_0, C_n, p)
@@ -77,7 +81,11 @@ ax.grid(which='major', linewidth=0.8, alpha=0.8)
 ax.grid(which='minor', linewidth=0.2, alpha=0.8)
 ax.minorticks_on()
 
-plt.scatter(df_pricesDK2days["SpotPriceDKK"]/np.max(df_pricesDK2days["SpotPriceDKK"]),df_pricesDK2days["ProfitDKK99"]/np.max(df_pricesDK2days["ProfitDKK99"]))
+ax.scatter(df_pricesDK2days["SpotPriceDKK"]/np.max(df_pricesDK2days["SpotPriceDKK"]),df_pricesDK2days["ProfitDKK99"]/np.max(df_pricesDK2days["ProfitDKK99"]))
+ax.annotate('Pearson correlation coefficient: 0.8101', xy=(350, 20), xycoords='axes points',
+            size=10, ha='right', va='top',
+            bbox=dict(boxstyle='round', fc='w'))
+ax.legend()
 ### Add the plot of a variable you think can be correlated it
 
 plt.xlabel("Spot prices DK2")

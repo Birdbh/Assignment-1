@@ -6,6 +6,10 @@ import numpy as np
 #Calling the prices in seperate dataframes
 df_pricesDK1, df_pricesDK2 = CreatePricesDf()
 
+#Change Spot Price to DKK/MWh
+df_pricesDK1["SpotPriceDKK"] = df_pricesDK1["SpotPriceDKK"]*1000
+df_pricesDK2["SpotPriceDKK"] = df_pricesDK2["SpotPriceDKK"]*1000
+
 #Calling the two regions DK1 and DK2 and finding the average of each in years
 df_YearavgDK1=df_pricesDK1.groupby(df_pricesDK1["HourDK"].dt.year)["SpotPriceDKK"].mean()
 df_YearavgDK2=df_pricesDK2.groupby(df_pricesDK2["HourDK"].dt.year)["SpotPriceDKK"].mean()
