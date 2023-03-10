@@ -33,19 +33,40 @@ df_hourly = df_hourly.reset_index(drop=True)
 
 #Cost per hour
 df_hourly["Costhour"]=df_hourly["Load"]*df_pricesDK2["Buy"]
-#Cost per day
-df_days=df_hourly.resample('d', on='HourDK').mean(numeric_only=True)
+#Sampling in to mean per hour of the day
+df_hourlyavg=df_hourly.groupby(df_hourly["HourDK"].dt.hour)["Costhour"].mean()
 
 #Total cost between t_s and t_e
 Totsum=df_hourly["Costhour"].sum()
+print(Totsum)
 
 #Consumed each hour of the day means times buy price each hour of the day means
-df_hourly["Costhourmean"]=df_hourly.groupby(df_hourly["HourDK"].dt.hour)["Load"].mean()*df_pricesDK2.groupby(df_pricesDK2["HourDK"].dt.hour)["Buy"].mean()
+df_hourlymean=df_hourly.groupby(df_hourly["HourDK"].dt.hour)["Load"].mean()*df_pricesDK2.groupby(df_pricesDK2["HourDK"].dt.hour)["Buy"].mean()
 #The sum of the day times all days
-Totmean=df_meanhours.sum()*(len(df_hourly["HourDK"])/24)
+Totmean=df_hourlymean.sum()*(len(df_hourly["HourDK"])/24)
+print(Totmean)
 
 #The difference between mean and sum calcultions in percents
 Totdif=(1-Totmean/Totsum)*100
+print(Totdif)
+
+#Plotting
+#Create range of x-axis based on hours during day
+hours = np.arange(len(df_hourlymean))
+
+#Change hour dataline to include every second number starting from 0 to make chart easier to read
+plt.xticks(np.delete(hours, np.arange(-1, hours.size, 2)))
+
+plt.plot(hours, df_hourlyavg, 'bo', linestyle='solid' ,label="Actual", alpha=0.5)
+plt.plot(hours, df_hourlymean, 'rs', linestyle='solid', label="Mean", alpha=0.5)
+
+plt.grid(alpha = 0.4)
+
+plt.xlabel("Hour (CET)")
+plt.ylabel("Cost per hour (DKK)")
+plt.title("Actual cost per hour vs mean cost per hour")
+plt.legend()
+plt.show()
 
 ##3.2
 #Import
@@ -149,3 +170,34 @@ df_pricesDK2days["Benefit"]=df_pricesDK2days["CostPVBat"]-df_pricesDK2days["Cost
 #Benefit in years
 df_pricesDK2years=df_pricesDK2days.groupby(df_pricesDK2days["HourDK"].dt.year)["Benefit"].sum()
 print(df_pricesDK2years.sum()) #Saved over 2 years and 10 month 6099dkk
+
+costPVBat = np.cumsum(df_pricesDK2days["CostPVBat"])
+
+CostPV = np.cumsum(df_pricesDK2days["CostPV"])
+
+fig, ax = plt.subplots()
+
+ax.plot(costPVBat, label='Cost w/ PV & Battery')
+ax.plot(CostPV, label='Cost w/ PV')
+
+# shade the area between the two lines
+ax.fill_between(range(len(costPVBat)), costPVBat, CostPV, alpha=0.2)
+
+plt.xticks()
+
+#Create specific background line pattern with major and minor lines
+ax.set_axisbelow(True)
+ax.grid(which='major', linewidth=0.8, alpha=0.8)
+ax.grid(which='minor', linewidth=0.2, alpha=0.8)
+ax.minorticks_on()
+
+ax.annotate('Cost Savings with Battery System: 6099.26', xy=(250, 20), xycoords='axes points',
+            size=10, ha='right', va='top',
+            bbox=dict(boxstyle='round', fc='w'))
+
+# add legend and axis labels
+plt.legend()
+plt.xlabel('Days from 2020 to October 2022')
+plt.ylabel('Cost in DKK')
+plt.title("Costs for Prosumer with a Battery and Without a Battery System")
+
