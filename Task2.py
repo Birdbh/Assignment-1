@@ -121,9 +121,9 @@ ax.annotate('Pearson correlation coefficient: 0.9463', xy=(350, 20), xycoords='a
 ax.legend()
 ### Add the plot of a variable you think can be correlated it
 
-plt.xlabel("Spot prices DK2")
+plt.xlabel("Spot Price Value Difference DK2")
 plt.ylabel("Profit from Battery DK2")
-plt.title("Correlation Between Spot Price and Optimized Battery Profit in DK2")
+plt.title("Correlation Between Spot Price Day Range and Optimized Battery Profit in DK2")
 plt.show()
 
 # Calculate Pearson correlation
