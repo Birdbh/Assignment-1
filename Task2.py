@@ -103,6 +103,37 @@ corr_coeff = corr_matrix[0, 1]
 # print the correlation coefficient
 print("Pearson correlation coefficient:", corr_coeff)
 
+##Coefficent For Kenneth that is the change in spot prices per day compared to the Potential Profit
+df_SpotPriceDifference = np.zeros(len(df_SpotPricehours))
+for i in range(0,len(df_SpotPricehours)):
+    df_SpotPriceDifference[i] = np.max(df_SpotPricehours[i])-np.min(df_SpotPricehours[i])
+
+fig, ax = plt.subplots()
+ax.set_axisbelow(True)
+ax.grid(which='major', linewidth=0.8, alpha=0.8)
+ax.grid(which='minor', linewidth=0.2, alpha=0.8)
+ax.minorticks_on()
+ax.scatter(df_SpotPriceDifference/np.max(df_SpotPriceDifference),df_pricesDK2days["ProfitDKK99"]/np.max(df_pricesDK2days["ProfitDKK99"]))
+ax.annotate('Pearson correlation coefficient: 0.9463', xy=(350, 20), xycoords='axes points',
+            size=10, ha='right', va='top',
+            bbox=dict(boxstyle='round', fc='w'))
+
+ax.legend()
+### Add the plot of a variable you think can be correlated it
+
+plt.xlabel("Spot prices DK2")
+plt.ylabel("Profit from Battery DK2")
+plt.title("Correlation Between Spot Price and Optimized Battery Profit in DK2")
+plt.show()
+
+# Calculate Pearson correlation
+# Check the values of other covariates
+corr_matrix_spot_difference = np.corrcoef(df_SpotPriceDifference/np.max(df_SpotPriceDifference),df_pricesDK2days["ProfitDKK99"]/np.max(df_pricesDK2days["ProfitDKK99"]))
+
+# extract the correlation coefficient from the matrix
+corr_coeff_spot_difference = corr_matrix_spot_difference[0, 1]
+
+
 ##2.2
 #Setting a new column  for the calulation of efficency 95%
 df_pricesDK2days["ProfitDKK95"]=np.ones(len(df_pricesDK2days["SpotPriceDKK"]))
